@@ -8,7 +8,7 @@ class LoginPage extends StatelessWidget {
   String password = ''; // 입력된 비밀번호
 
   Future<void> _login(BuildContext context, int id, String password) async {
-    // 로그인 정보를 JSON으로 저장
+    // 로그인 정보를 JSON으로 저장DDD
     Map<String, dynamic> loginData = {
       'id': id,
       'password': password,
