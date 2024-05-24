@@ -19,7 +19,7 @@ class LoginPage extends StatelessWidget {
 
     // POST 요청 보내기
     final response = await http.post(
-      Uri.parse('http://180.64.40.88:8211/login'),
+      Uri.parse('http://192.168.92.11:8080/login'),
       headers: <String, String>{
         'Content-Type': 'application/json', // 파일 타입을 JSON으로 명시
       },
@@ -110,10 +110,10 @@ class LoginPage extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     _login(context, id, password); // 로그인 함수 호출
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MainPage()),
-                    );
+                    //Navigator.push(
+                    //  context,
+                    //  MaterialPageRoute(builder: (context) => MainPage()),
+                    //);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey,
