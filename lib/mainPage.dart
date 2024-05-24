@@ -1,6 +1,8 @@
+// 패키지 관리
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+// 페이지 import
 import 'busReservation.dart';
 import 'noticePage.dart';
 import 'myPage.dart';
@@ -12,7 +14,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final controller = PageController();
-  // 드래그 시트가 열려 있는지 여부를 저장하는 변수dl
+  // 드래그 시트가 열려 있는지 여부를 저장하는 변수
   bool isSheetOpen = false;
 
   @override
@@ -441,9 +443,9 @@ class _DraggableSheetPageState extends State<DraggableSheetPage> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.7,
+      initialChildSize: 0.85,
       minChildSize: 0.25,
-      maxChildSize: 0.7,
+      maxChildSize: 1.0,
       builder: (BuildContext context, ScrollController scrollController) {
         return Container(
           decoration: BoxDecoration(
@@ -458,54 +460,220 @@ class _DraggableSheetPageState extends State<DraggableSheetPage> {
           // 드래그시트 내용 추가
           child: Column(
             children: [
-              // 맨 위에 텍스트 두 줄 출력
-              Container(
-                alignment: Alignment.center,
-                margin: EdgeInsets.only(top: 20),
-
-                child: Column(
-                  children: [
-                    Text(
-                      '학번',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      '학생 이름',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 5),
-              // 중앙에 QR 코드 생성
+              SizedBox(height: 12),
               QrImageView(
                 data: 'QR 코드 데이터', // 여기에 QR 코드를 생성할 데이터 입력
                 version: QrVersions.auto,
-                size: 200,
+                size: 180,
               ),
-              SizedBox(height: 5),
-              // 하단에 이미지 출력
+              SizedBox(height: 12),
+
+              // 하단에 정보 출력
               Expanded(
-                child: Container(
-                  alignment: Alignment.center,
-                  child: Image.asset(
-                    'assets/images/logo.jpg',
-                    width: 200,
-                    height: 120,
-                  ),
-                ),
+                child: Column(
+                  children: [
+                    // 출발지 및 목적지
+                    Container(
+                      height: 90,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.red, // Set the color of the top border
+                            width: 2.0, // Set the width of the top border
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.fromLTRB(20, 5, 20, 0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '출발지',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                  ),
+                                ),
+                                SizedBox(height: 5), // Add space between the two texts
+                                Text(
+                                  '경로1',
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          Icon(
+                            Icons.arrow_forward,
+                            size: 50,
+                          ),
+                          SizedBox(width: 20),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(20, 5, 20, 0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '목적지',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                  ),
+                                ),
+                                SizedBox(height: 5), // Add space between the two texts
+                                Text(
+                                  '경로2',
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // 출발시간과 좌석번호
+                    Container(
+                      height: 90,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.grey, // Set the color of the top border
+                            width: 1.0, // Set the width of the top border
+                          ),
+                          bottom: BorderSide(
+                            color: Colors.grey, // Set the color of the bottom border
+                            width: 1.0, // Set the width of the bottom border
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.fromLTRB(10, 0, 10, 0), // Add margin to the container
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '출발시간',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5), // Add space between the two texts
+                                  Text(
+                                    '08:00',
+                                    style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  left: BorderSide(
+                                    color: Colors.grey,
+                                    width: 1.0,
+                                  ),
+                                  right: BorderSide(
+                                    color: Colors.grey,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '도착시간',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5), // Add space between the two texts
+                                  Text(
+                                    '10:00',
+                                    style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.fromLTRB(10, 0, 10, 0), // Add margin to the container
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '좌석번호',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5), // Add space between the two texts
+                                  Text(
+                                    '15',
+                                    style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // 예매취소 버튼
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.red,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0), // Optional: add border radius for rounded corners
+                      ),
+                      width: double.infinity,
+                      child: TextButton(
+                        onPressed: () {
+                          // Handle button press
+                        },
+                        child: Text(
+                          '예매취소',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+
               ),
             ],
           ),
         );
-
       },
     );
   }
