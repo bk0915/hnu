@@ -869,7 +869,7 @@ class _SeatSelector extends State<SeatSelector> {
 // 좌석 정보를 요청
 class RequestSeat {
   Future<Map<String, dynamic>> getReservation(String busNumber, String tripType) async {
-    final String baseUrl = "http://192.168.92.11:8080/reservation/available-seats";
+    final String baseUrl = "http://180.64.40.88:8211/reservation/available-seats";
 
     // 쿼리 파라미터를 URL에 추가
     final uriWithParams = Uri.parse(baseUrl).replace(
@@ -914,8 +914,8 @@ class RequestSeat {
 // 예약 정보를 전송
 class sendSeat {
   Future<void> makeReservation(String type, int busId, int seatNumber) async {
-    final String baseUrl = "http://192.168.92.11:8080/reservation/enroll";
-    int studentId = loginPage.LoginPage().id;
+    final String baseUrl = "http://180.64.40.88:8211/reservation/enroll";
+    int studentId = loginPage.LoginPage().userId;
     DateTime reservationTime = DateTime.now(); // 현재 시간 저장
 
     // 예약 정보를 JSON 형식으로 변환
@@ -940,7 +940,6 @@ class sendSeat {
     );
 
     // 응답 처리
-    //
     if (response.statusCode == 200) {
       print('Reservation successful');
     } else {

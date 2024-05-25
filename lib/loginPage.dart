@@ -3,8 +3,16 @@ import 'dart:convert'; // JSON 데이터 처리를 위한 패키지
 import 'package:http/http.dart' as http; // HTTP 요청을 위한 패키지
 import 'mainPage.dart';
 
-class LoginPage extends StatelessWidget {
-  int id = 0; // 입력된 아이디
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+
+  // id에 접근할 수 있는 getter 메서드 추가
+  int get userId => _LoginPageState()._id;
+}
+
+class _LoginPageState extends State<LoginPage> {
+  int _id = 2; // 입력된 아이디
   String password = ''; // 입력된 비밀번호
 
   Future<void> _login(BuildContext context, int id, String password) async {
@@ -19,7 +27,7 @@ class LoginPage extends StatelessWidget {
 
     // POST 요청 보내기
     final response = await http.post(
-      Uri.parse('http://192.168.92.11:8080/login'),
+      Uri.parse('http://180.64.40.88:8211/login'),
       headers: <String, String>{
         'Content-Type': 'application/json', // 파일 타입을 JSON으로 명시
       },
@@ -73,7 +81,9 @@ class LoginPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 40.0),
                 child: TextField(
                   onChanged: (value) {
-                    id = int.parse(value); // 아이디 입력값 저장
+                    setState(() {
+                      _id = int.parse(value); // 아이디 입력값 저장
+                    });
                   },
                   decoration: InputDecoration(
                     hintText: '아이디',
@@ -90,7 +100,9 @@ class LoginPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 40.0),
                 child: TextField(
                   onChanged: (value) {
-                    password = value; // 비밀번호 입력값 저장
+                    setState(() {
+                      password = value; // 비밀번호 입력값 저장
+                    });
                   },
                   obscureText: true,
                   decoration: InputDecoration(
@@ -109,11 +121,7 @@ class LoginPage extends StatelessWidget {
                 height: 60,
                 child: ElevatedButton(
                   onPressed: () {
-                    _login(context, id, password); // 로그인 함수 호출
-                    //Navigator.push(
-                    //  context,
-                    //  MaterialPageRoute(builder: (context) => MainPage()),
-                    //);
+                    _login(context, _id, password); // 로그인 함수 호출
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey,
@@ -137,5 +145,4 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-
 
