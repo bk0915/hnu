@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'loginPage.dart'; // 로그인 페이지를 import
+import 'package:permission_handler/permission_handler.dart';
 
 class LoadingPage extends StatefulWidget {
   @override
@@ -11,14 +12,35 @@ class _LoadingPageState extends State<LoadingPage> {
   @override
   void initState() {
     super.initState();
-    // 2초 후에 로그인 페이지로 이동
+    // 로딩 페이지 표시
     Timer(Duration(seconds: 2), () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
+      _navigateToLoginPage();
     });
   }
+
+  // 권한 요청
+  void _navigateToLoginPage() async {
+    // 알림 권한 확인
+    PermissionStatus notificationStatus = await Permission.notification.status;
+    // 위치 권한 확인
+    PermissionStatus locationStatus = await Permission.location.status;
+
+    // 알림 권한 또는 위치 권한이 설정되어 있지 않은 경우 권한 요청
+    if (notificationStatus.isDenied || notificationStatus.isPermanentlyDenied ||
+        locationStatus.isDenied || locationStatus.isPermanentlyDenied) {
+      // 알림 권한 요청
+      await Permission.notification.request();
+      // 위치 권한 요청
+      await Permission.location.request();
+    }
+
+    // 로그인 페이지로 이동
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
