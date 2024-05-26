@@ -18,7 +18,7 @@ class _BusReservation extends State<BusReservation> {
   // 드래그 시트가 열려 있는지 여부를 저장하는 변수
   bool isSheetOpen = false;
 
-  // 등하교 정보를 저장
+  // 등하교 정보를 저장dd
   String tripType = '등교'; // 초기값을 '등교'로 설정
 
   // 목적지 정보를 선택했는지 확인
@@ -47,6 +47,7 @@ class _BusReservation extends State<BusReservation> {
   List<String> busIdList = ['1154','1155','1156','1157'];
 
   // GET 호출 내용 출력
+<<<<<<< HEAD
   void _requestSeat(String busId) async {
     try {
       Map<String, dynamic> printData = await RequestSeat().getReservation(busId);
@@ -55,6 +56,18 @@ class _BusReservation extends State<BusReservation> {
       print('Seat Numbers: ${printData['seatNumbers']}');
     } catch (e) {
       print(e);
+=======
+  Future<Map<String, dynamic>> _requestSeat(String busId, String tripType) async {
+    try {
+      Map<String, dynamic> reservationData = await RequestSeat().getReservation(busId, tripType);
+      print('Bus ID: ${reservationData['busId']}');
+      print('Type: ${reservationData['type'] ? '등교' : '하교'}');
+      print('Seat Numbers: ${reservationData['seatNumbers']}');
+      return reservationData;
+    } catch (e) {
+      print(e);
+      throw Exception('Failed to get reservation data');
+>>>>>>> origin/master
     }
   }
 
@@ -332,6 +345,7 @@ class _BusReservation extends State<BusReservation> {
                                             ),
                                             actions: <Widget>[
                                               TextButton(
+<<<<<<< HEAD
                                                 onPressed: () {
                                                   // 잔여 좌석 요청
                                                   _requestSeat(busIdList[i]);
@@ -344,6 +358,37 @@ class _BusReservation extends State<BusReservation> {
                                                 },
                                                 child: Text('확인'),
                                               ),
+=======
+                                                onPressed: () async {
+                                                  try {
+                                                    Map<String, dynamic> reservationData = await _requestSeat(busIdList[i],tripType);
+
+                                                    // 받은 데이터 사용
+                                                    String receivedBusId = reservationData['busId'];
+                                                    bool receivedType = reservationData['type'];
+                                                    List<bool> receivedSeatNumbers = reservationData['seatNumbers'];
+
+                                                    // 좌석 선택으로 이동
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(builder: (context) => SeatSelector(
+                                                        receivedSeatNumbers: receivedSeatNumbers,
+                                                        busId: receivedBusId,
+                                                        type: receivedType ? '등교':'하교',
+                                                      )),
+                                                    );
+                                                  } catch (e) {
+                                                    // 예외 처리
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(builder: (context) => BusReservation()),
+                                                    );
+                                                  }
+                                                },
+                                                child: Text('확인'),
+                                              ),
+
+>>>>>>> origin/master
                                               TextButton(
                                                 onPressed: () {
                                                   setState(() {
@@ -525,13 +570,37 @@ class _BusReservation extends State<BusReservation> {
   }
 }
 
+<<<<<<< HEAD
 class SeatSelector extends StatefulWidget{
+=======
+class SeatSelector extends StatefulWidget {
+  final List<bool> receivedSeatNumbers;
+  final String busId;
+  final String type;
+
+  SeatSelector({
+    required this.receivedSeatNumbers,
+    required this.busId,
+    required this.type,
+  });
+
+>>>>>>> origin/master
   @override
   _SeatSelector createState() => _SeatSelector();
 }
 
 class _SeatSelector extends State<SeatSelector> {
+<<<<<<< HEAD
   List<bool> _selectedSeats = List.generate(45, (_) => false); // 45개의 좌석 상태를 관리하는 리스트
+=======
+  late List<bool> _selectedSeats;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedSeats = widget.receivedSeatNumbers;
+  }
+>>>>>>> origin/master
 
   @override
   Widget build(BuildContext context) {
@@ -576,9 +645,13 @@ class _SeatSelector extends State<SeatSelector> {
             },
           ),
         ],
+<<<<<<< HEAD
 
       ),
 
+=======
+      ),
+>>>>>>> origin/master
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -602,7 +675,10 @@ class _SeatSelector extends State<SeatSelector> {
           ),
         ],
       ),
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
       // 바텀바 구성
       // 홈버튼(플로팅버튼)
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -763,6 +839,12 @@ class _SeatSelector extends State<SeatSelector> {
                   // 첫 번째 다이얼로그를 닫기 전에 확인 메시지 다이얼로그를 보여줌
                   Navigator.of(context).pop(); // 첫 번째 다이얼로그 닫기
 
+<<<<<<< HEAD
+=======
+                  // sendSeat 호출
+                  sendSeat().makeReservation(widget.type, int.parse(widget.busId), index + 1);
+
+>>>>>>> origin/master
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -830,15 +912,27 @@ class _SeatSelector extends State<SeatSelector> {
   }
 }
 
+<<<<<<< HEAD
 // 좌석 정보를 요청
 class RequestSeat {
   Future<Map<String, dynamic>> getReservation(String busNumber) async {
+=======
+
+// 좌석 정보를 요청
+class RequestSeat {
+  Future<Map<String, dynamic>> getReservation(String busNumber, String tripType) async {
+>>>>>>> origin/master
     final String baseUrl = "http://180.64.40.88:8211/reservation/available-seats";
 
     // 쿼리 파라미터를 URL에 추가
     final uriWithParams = Uri.parse(baseUrl).replace(
       queryParameters: {
+<<<<<<< HEAD
         'busNumber': busNumber,
+=======
+        'busId': busNumber,
+        'type': tripType
+>>>>>>> origin/master
       },
     );
 
@@ -876,6 +970,7 @@ class RequestSeat {
 
 // 예약 정보를 전송
 class sendSeat {
+<<<<<<< HEAD
   Future<void> makeReservation(String type, int busId, int seatNumber, DateTime reservationTime) async {
     final String baseUrl = "http://180.64.40.88:8211/reservation";
     int studentId = loginPage.LoginPage().id;
@@ -887,6 +982,20 @@ class sendSeat {
       'seatNumber': seatNumber,
       'reservationTime': reservationTime.toIso8601String(),
       'studentId': studentId,
+=======
+  Future<void> makeReservation(String type, int busId, int seatNumber) async {
+    final String baseUrl = "http://180.64.40.88:8211/reservation/enroll";
+    int studentId = loginPage.LoginPage().userId;
+    DateTime reservationTime = DateTime.now(); // 현재 시간 저장
+
+    // 예약 정보를 JSON 형식으로 변환
+    Map<String, dynamic> reservationData = {
+      'user_id': studentId,
+      'type' : type,
+      'bus_id': busId,
+      'seat_number': seatNumber,
+      'date': reservationTime.toIso8601String(),
+>>>>>>> origin/master
     };
 
     // JSON 데이터로 변환
@@ -902,7 +1011,10 @@ class sendSeat {
     );
 
     // 응답 처리
+<<<<<<< HEAD
     //
+=======
+>>>>>>> origin/master
     if (response.statusCode == 200) {
       print('Reservation successful');
     } else {

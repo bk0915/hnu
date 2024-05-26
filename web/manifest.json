@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
     "name": "hnu",
     "short_name": "hnu",
+=======
+    "name": "untitled1",
+    "short_name": "untitled1",
+>>>>>>> origin/master
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
