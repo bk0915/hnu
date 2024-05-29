@@ -6,11 +6,14 @@ import 'package:http/http.dart' as http;
 import 'mainPage.dart';
 import 'noticePage.dart';
 import 'myPage.dart';
-import 'loginPage.dart' as loginPage;
+import 'loginPage.dart';
 
 class BusReservation extends StatefulWidget {
   @override
   _BusReservation createState() => _BusReservation();
+
+  static String end_point ='';
+  static String route = '';
 }
 
 class _BusReservation extends State<BusReservation> {
@@ -23,7 +26,7 @@ class _BusReservation extends State<BusReservation> {
 
   // 목적지 정보를 선택했는지 확인
   bool isFirstSelected = true;
-  List<bool> isSecondSelected = [true, false, false, false];
+  List<bool> isSecondSelected = [true, false, false, false, false];
   List<bool> isThirdSelected = List.generate(17, (_) => false);
 
   // 정거장 리스트
@@ -41,17 +44,19 @@ class _BusReservation extends State<BusReservation> {
     ['성원A 승강장', '계룡시외버스 터미널', '계룡고등학교 맞은편', '두계사 입구', '진잠4거리 SK주유소 앞', '건양대병원 4거리',
     '가수원 육교', '정림동 세영프라자', '도마 e편한 세상 버스승강장', '유천시장 입구', '서대전 네거리', '오룡역 7번출구'],
     // 가오, 판암
-    ['가오동네거리 새마을금고', '판암역 전자랜드', '신흥동 시외버스 매표소 건너', '대동역 5번출구', '대전역 대한통운']
+    ['가오동네거리 새마을금고', '판암역 전자랜드', '신흥동 시외버스 매표소 건너', '대동역 5번출구', '대전역 대한통운'],
+    // 천안, 청주
+    ['천안고속터미널 건너편', '청주 가경동 시외버스터미널 앞']
   ];
   // 버스 ID 리스트
-  List<String> busIdList = ['1154','1155','1156','1157'];
+  List<String> busEndpoint = ['도안','세종, 노은','계룡, 진잠','가오, 판암', '천안, 청주'];
 
   // GET 호출 내용 출력
-  Future<Map<String, dynamic>> _requestSeat(String busId, String tripType) async {
+  Future<Map<String, dynamic>> _requestSeat(String busEndpoint, String tripType) async {
     try {
-      Map<String, dynamic> reservationData = await RequestSeat().getReservation(busId, tripType);
+      Map<String, dynamic> reservationData = await RequestSeat().getReservation(busEndpoint, tripType);
       print('Bus ID: ${reservationData['busId']}');
-      print('Type: ${reservationData['type'] ? '등교' : '하교'}');
+      print('Type: ${reservationData['type']}');
       print('Seat Numbers: ${reservationData['seatNumbers']}');
       return reservationData;
     } catch (e) {
@@ -199,7 +204,7 @@ class _BusReservation extends State<BusReservation> {
           ),
             SizedBox(height: 20),
 
-            // 목적지 설정
+            // 목적지 설정(전체 부분)
             Expanded(
               child: Container(
                 padding: EdgeInsets.only(top: 10, bottom: 10),
@@ -279,24 +284,20 @@ class _BusReservation extends State<BusReservation> {
                       ),
                       child: Column(
                         children: [
-                          for (var i = 0; i < isSecondSelected.length; i++)
+                          for (var i = 0; i < (isFirstSelected ? busEndpoint.length - 1 : 1); i++)
                             TextButton(
                               onPressed: () {
                                 setState(() {
                                   // 선택된 항목의 인덱스를 업데이트하고 다른 항목들은 선택 해제
                                   for (var j = 0; j < isSecondSelected.length; j++) {
-                                    if (j == i) {
-                                      isSecondSelected[j] = true;
-                                    } else {
-                                      isSecondSelected[j] = false;
-                                    }
+                                    isSecondSelected[j] = (j == i); // 선택된 항목만 true로 설정
                                   }
                                 });
                               },
                               child: Text(
                                 isFirstSelected
-                                    ? ['도안', '세종, 노은', '계룡, 진잠', '가오, 판암'][i]
-                                    : i == 0 ? '천안, 청주' : '',
+                                    ? busEndpoint[i]
+                                    : busEndpoint[busEndpoint.length - 1],
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: isSecondSelected[i] ? Colors.black : Colors.grey,
@@ -314,13 +315,17 @@ class _BusReservation extends State<BusReservation> {
                           children: [
                             for (var i = 0; i < isSecondSelected.length; i++)
                               if (isSecondSelected[i])
-                                for (var j = 0; j < stationLists[i].length; j++)
+                                for (var j = 0; j < stationLists[isFirstSelected ? i : stationLists.length - 1].length; j++)
                                   TextButton(
                                     onPressed: () {
                                       setState(() {
                                         // 선택된 항목의 인덱스를 업데이트하고 다른 항목들은 선택 해제
                                         for (var k = 0; k < isThirdSelected.length; k++) {
                                           isThirdSelected[k] = (k == j && !isThirdSelected[k]);
+                                        }
+                                        // 시외 버스 노선을 선택한 경우 해당 인덱스만 true로 설정
+                                        for (var k = 0; k < isSecondSelected.length; k++) {
+                                          isSecondSelected[k] = (k == i);
                                         }
                                       });
 
@@ -329,14 +334,16 @@ class _BusReservation extends State<BusReservation> {
                                           context: context,
                                           builder: (context) => AlertDialog(
                                             content: Text(
-                                                '\n${stationLists[i][j]}을/를 선택하시겠습니까?',
+                                              '\n${stationLists[isFirstSelected ? i : stationLists.length - 1][j]}을/를 선택하시겠습니까?',
                                               style: TextStyle(fontSize: 18),
                                             ),
                                             actions: <Widget>[
                                               TextButton(
                                                 onPressed: () async {
                                                   try {
-                                                    Map<String, dynamic> reservationData = await _requestSeat(busIdList[i],tripType);
+                                                    BusReservation.end_point = stationLists[isFirstSelected ? i : stationLists.length - 1][j];
+                                                    BusReservation.route = busEndpoint[i];
+                                                    Map<String, dynamic> reservationData = await _requestSeat(busEndpoint[i], tripType);
 
                                                     // 받은 데이터 사용
                                                     String receivedBusId = reservationData['busId'];
@@ -349,7 +356,7 @@ class _BusReservation extends State<BusReservation> {
                                                       MaterialPageRoute(builder: (context) => SeatSelector(
                                                         receivedSeatNumbers: receivedSeatNumbers,
                                                         busId: receivedBusId,
-                                                        type: receivedType ? '등교':'하교',
+                                                        type: receivedType ? '등교' : '하교',
                                                       )),
                                                     );
                                                   } catch (e) {
@@ -379,7 +386,7 @@ class _BusReservation extends State<BusReservation> {
                                       }
                                     },
                                     child: Text(
-                                      stationLists[i][j],
+                                      stationLists[isFirstSelected ? i : stationLists.length - 1][j],
                                       style: TextStyle(
                                         fontSize: 18,
                                         color: isThirdSelected[j] ? Colors.black : Colors.grey, // 선택되었을 때 글씨 색상 변경
@@ -391,6 +398,7 @@ class _BusReservation extends State<BusReservation> {
                         ),
                       ),
                     ),
+
                   ],
                 ),
               ),
@@ -460,7 +468,7 @@ class _BusReservation extends State<BusReservation> {
                       fit: BoxFit.contain,
                     ),
                     Text(
-                      '지도',
+                      '노선',
                       style: TextStyle(
                         fontWeight: FontWeight.bold, // 텍스트 굵기 설정
                       ),
@@ -470,18 +478,22 @@ class _BusReservation extends State<BusReservation> {
               ),
               InkWell(
                 onTap: () {
-                  // 배차표로 이동
+                  // 커뮤니티로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => noticePage()),
+                  );
                 },
                 child: Column(
                   children: [
                     Image.asset(
-                      'assets/images/BusRoute_icon.png',
+                      'assets/images/board_icon.png',
                       width: 24,
                       height: 24,
                       fit: BoxFit.contain,
                     ),
                     Text(
-                      '노선정보',
+                      '커뮤니티',
                       style: TextStyle(
                         fontWeight: FontWeight.bold, // 텍스트 굵기 설정
                       ),
@@ -777,7 +789,7 @@ class _SeatSelector extends State<SeatSelector> {
 
   Widget _buildSeat(int index) {
     return GestureDetector(
-      onTap: () {
+      onTap: _selectedSeats[index] ? null : () {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -796,7 +808,7 @@ class _SeatSelector extends State<SeatSelector> {
                   Navigator.of(context).pop(); // 첫 번째 다이얼로그 닫기
 
                   // sendSeat 호출
-                  sendSeat().makeReservation(widget.type, int.parse(widget.busId), index + 1);
+                  sendSeat().makeReservation(widget.type, int.parse(widget.busId), index + 1,BusReservation.end_point, BusReservation.route);
 
                   showDialog(
                     context: context,
@@ -868,13 +880,13 @@ class _SeatSelector extends State<SeatSelector> {
 
 // 좌석 정보를 요청
 class RequestSeat {
-  Future<Map<String, dynamic>> getReservation(String busNumber, String tripType) async {
+  Future<Map<String, dynamic>> getReservation(String endPoint, String tripType) async {
     final String baseUrl = "http://180.64.40.88:8211/reservation/available-seats";
 
     // 쿼리 파라미터를 URL에 추가
     final uriWithParams = Uri.parse(baseUrl).replace(
       queryParameters: {
-        'busId': busNumber,
+        'endPoint': endPoint,
         'type': tripType
       },
     );
@@ -887,13 +899,13 @@ class RequestSeat {
 
       // 초기화
       String busId = '';
-      bool type = false;
+      String type = '';
       List<bool> seatNumbers = List.filled(45, false);
 
       // 데이터 추출 및 처리
       for (var item in jsonResponse) {
         busId = item['id']['busId'].toString();
-        type = item['bus']['type'] == '등교';
+        type = item['bus']['type'];
         int seatNumber = item['id']['seatNumber'] - 1; // 좌석 번호는 1부터 시작하므로 인덱스는 -1
         seatNumbers[seatNumber] = true; // 해당 좌석 번호의 인덱스만 true로 설정
       }
@@ -913,17 +925,19 @@ class RequestSeat {
 
 // 예약 정보를 전송
 class sendSeat {
-  Future<void> makeReservation(String type, int busId, int seatNumber) async {
+  Future<void> makeReservation(String type, int busId, int seatNumber, String endPoint, String route) async {
     final String baseUrl = "http://180.64.40.88:8211/reservation/enroll";
-    int studentId = loginPage.LoginPage().userId;
+    int studentId = LoginPage.user_id;
     DateTime reservationTime = DateTime.now(); // 현재 시간 저장
 
     // 예약 정보를 JSON 형식으로 변환
     Map<String, dynamic> reservationData = {
       'user_id': studentId,
-      'type' : type,
+      'type': type,
       'bus_id': busId,
       'seat_number': seatNumber,
+      'end_point': endPoint,
+      'route': route,
       'date': reservationTime.toIso8601String(),
     };
 

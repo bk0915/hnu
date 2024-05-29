@@ -7,13 +7,12 @@ class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 
-  // id에 접근할 수 있는 getter 메서드 추가
-  int get userId => _LoginPageState()._id;
+  static int user_id = 0; // 입력된 아이디
+  String password = ''; // 입력된 비밀번호
 }
 
 class _LoginPageState extends State<LoginPage> {
-  int _id = 2; // 입력된 아이디
-  String password = ''; // 입력된 비밀번호
+  String password = LoginPage().password;
 
   Future<void> _login(BuildContext context, int id, String password) async {
     // 로그인 정보를 JSON으로 저장
@@ -27,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // POST 요청 보내기
     final response = await http.post(
-      Uri.parse('http://180.64.40.88:8211/login'),
+      Uri.parse('http://180.64.40.88:8211/login'), // 180.64.40.88:8211
       headers: <String, String>{
         'Content-Type': 'application/json', // 파일 타입을 JSON으로 명시
       },
@@ -82,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: TextField(
                   onChanged: (value) {
                     setState(() {
-                      _id = int.parse(value); // 아이디 입력값 저장
+                      LoginPage.user_id = int.parse(value); // 아이디 입력값 저장
                     });
                   },
                   decoration: InputDecoration(
@@ -121,7 +120,11 @@ class _LoginPageState extends State<LoginPage> {
                 height: 60,
                 child: ElevatedButton(
                   onPressed: () {
-                    _login(context, _id, password); // 로그인 함수 호출
+                    _login(context, LoginPage.user_id, password); // 로그인 함수 호출
+                    //Navigator.push(
+                    //  context,
+                    //  MaterialPageRoute(builder: (context) => MainPage()),
+                    //);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey,
@@ -145,4 +148,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+// 다른 페이지 import
 import 'mainPage.dart';
+import 'noticePage.dart';
 import 'myPage.dart';
 
-class noticePage extends StatefulWidget{
+class BusAlert extends StatefulWidget {
   @override
-  _noticePage createState() => _noticePage();
+  _BusAlert createState() => _BusAlert();
 }
 
-class _noticePage extends State<noticePage>{
+class _BusAlert extends State<BusAlert> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // 최상단 appbar
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        surfaceTintColor: Colors.white,
         title: Container(
           child: Row(
             children: [
@@ -35,6 +38,10 @@ class _noticePage extends State<noticePage>{
             ),
             onPressed: () {
               // 동작 처리
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => noticePage()),
+              );
             },
           ),
           IconButton(
@@ -52,106 +59,8 @@ class _noticePage extends State<noticePage>{
 
       ),
 
-      // 프로필 정보
-      body: Column(
-        children: [
-          // 상단 공지사항 및 문의하기 버튼
-          Container(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.red, width: 2.0), // 위쪽 테두리 빨간색
-                bottom: BorderSide(color: Colors.grey, width: 2.0), // 아래쪽 테두리 회색
-              ),
-            ),
-            padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () {
-                    // 공지사항 버튼 동작 처리
-                  },
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'assets/images/notice_icon.png',
-                        width: 28,
-                        height: 28,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        '공지사항',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 80),
-                InkWell(
-                  onTap: () {
-                    // 문의하기 버튼 동작 처리
-                  },
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'assets/images/board_icon.png',
-                        width: 28,
-                        height: 28,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        '문의하기',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // 스크롤 가능한 텍스트 리스트
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.all(16.0),
-              itemCount: 10, // 항목의 갯수를 생성
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: EdgeInsets.only(bottom: 10.0),
-                  child: Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '제목 ${index + 1}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          '날짜: 2024-05-18 시간: 14:30',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+      // 예약 화면
+      body: Container(),
 
       // 바텀바 구성
       // 홈버튼(플로팅버튼)
@@ -224,11 +133,7 @@ class _noticePage extends State<noticePage>{
               ),
               InkWell(
                 onTap: () {
-                  // 커뮤니티로 이동
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => noticePage()),
-                  );
+                  // 배차표로 이동
                 },
                 child: Column(
                   children: [

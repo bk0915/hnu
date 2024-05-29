@@ -120,7 +120,7 @@ class _myPage extends State<myPage>{
                       fit: BoxFit.contain,
                     ),
                     Text(
-                      '지도',
+                      '노선',
                       style: TextStyle(
                         fontWeight: FontWeight.bold, // 텍스트 굵기 설정
                       ),
@@ -130,18 +130,22 @@ class _myPage extends State<myPage>{
               ),
               InkWell(
                 onTap: () {
-                  // 배차표로 이동
+                  // 커뮤니티로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => noticePage()),
+                  );
                 },
                 child: Column(
                   children: [
                     Image.asset(
-                      'assets/images/BusRoute_icon.png',
+                      'assets/images/board_icon.png',
                       width: 24,
                       height: 24,
                       fit: BoxFit.contain,
                     ),
                     Text(
-                      '노선정보',
+                      '커뮤니티',
                       style: TextStyle(
                         fontWeight: FontWeight.bold, // 텍스트 굵기 설정
                       ),
