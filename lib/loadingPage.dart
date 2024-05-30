@@ -29,9 +29,14 @@ class _LoadingPageState extends State<LoadingPage> {
     if (notificationStatus.isDenied || notificationStatus.isPermanentlyDenied ||
         locationStatus.isDenied || locationStatus.isPermanentlyDenied) {
       // 알림 권한 요청
-      await Permission.notification.request();
+      if (notificationStatus.isDenied || notificationStatus.isPermanentlyDenied) {
+        await Permission.notification.request();
+      }
+
       // 위치 권한 요청
-      await Permission.location.request();
+      if (locationStatus.isDenied || locationStatus.isPermanentlyDenied) {
+        await Permission.location.request();
+      }
     }
 
     // 로그인 페이지로 이동
@@ -40,6 +45,7 @@ class _LoadingPageState extends State<LoadingPage> {
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
+
 
 
   @override
