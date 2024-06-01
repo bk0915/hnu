@@ -4,12 +4,14 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // 페이지 import
 import 'busReservation.dart';
 import 'noticePage.dart';
 import 'myPage.dart';
 import 'loginPage.dart';
+import 'settingPage.dart';
 
 class MainPage extends StatefulWidget {
   static Map<String, dynamic>? reservationData;
@@ -22,6 +24,10 @@ class _MainPageState extends State<MainPage> {
   final controller = PageController();
   // 드래그 시트가 열려 있는지 여부를 저장하는 변수
   bool isSheetOpen = false;
+  int userId = LoginPage.user_id;
+  String Url() {
+    return 'http://180.64.40.88:8211/resource/img/$userId';
+  }
 
   @override
   void initState() {
@@ -32,9 +38,10 @@ class _MainPageState extends State<MainPage> {
   // 유저 정보를 reservationData에 저장
   Future<void> _loadReservationData() async {
     try {
-      var result = await RequestInformation().getReservation(LoginPage.user_id);
+      var result = await RequestInformation().getReservation(userId);
       setState(() {
         MainPage.reservationData = result;
+        print(MainPage.reservationData);
       });
     } catch (e) {
       print(e);
@@ -110,20 +117,21 @@ class _MainPageState extends State<MainPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // 프로필 사진
+                      // 프로필
                       Container(
                         height: 190,
                         child: Row(
                           children: [
+                            // 사진
                             Container(
-                              margin: EdgeInsets.all(15),
+                              margin: EdgeInsets.fromLTRB(15, 15, 0, 15),
                               width: 139,
                               height: 152,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 color: Colors.white,
                                 image: DecorationImage(
-                                  image: AssetImage('assets/images/profile.png'),
+                                  image: CachedNetworkImageProvider(Url()),
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -131,24 +139,52 @@ class _MainPageState extends State<MainPage> {
 
                             // 운행 정보 Text
                             Container(
-                              padding: EdgeInsets.fromLTRB(30, 20, 30, 20),
+                              padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // 목적지 정보 출력
                                   Text(
-                                    '목적지: ${MainPage.reservationData?['endPoint'] ?? '예약 없음'}',
+                                    MainPage.reservationData?['name'] != null
+                                        ? '${MainPage.reservationData?['name']}'
+                                        : '',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 20,
+                                      fontSize: 19,
+                                    ),
+                                  ),
+                                  SizedBox(height: 15),
+                                  Text(
+                                    MainPage.reservationData?['route'] != null
+                                        ? '노선: ${MainPage.reservationData?['route']}(${MainPage.reservationData?['type']})'
+                                        : '예약 정보 없음',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
                                     ),
                                   ),
                                   SizedBox(height: 10),
                                   Text(
-                                    '시간 안내',
+                                    MainPage.reservationData?['end_point'] != null
+                                        ? '목적지: ${MainPage.reservationData?['end_point']}'
+                                        : '',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 20,
+                                      fontSize: 15,
+                                    ),
+                                    softWrap: true,
+                                  ),
+                                  // 정거장 이름
+                                  SizedBox(height: 10),
+                                  // 시간 정보 출력
+                                  Text(
+                                    MainPage.reservationData?['date'] != null
+                                        ? '예약일: ${MainPage.reservationData?['date']}'
+                                        : '',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
                                     ),
                                   ),
                                 ],
@@ -437,6 +473,10 @@ class _MainPageState extends State<MainPage> {
               InkWell(
                 onTap: () {
                   // 설정으로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingPage()),
+                  );
                 },
                 child: Column(
                   children: [
@@ -468,6 +508,11 @@ class DraggableSheetPage extends StatefulWidget {
 }
 
 class _DraggableSheetPageState extends State<DraggableSheetPage> {
+  String date = MainPage.reservationData?['date'];
+  int SeatNumber = MainPage.reservationData?['seatNumber'];
+  String endPoint = MainPage.reservationData?['end_point'];
+  String type = MainPage.reservationData?['type'];
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -490,7 +535,7 @@ class _DraggableSheetPageState extends State<DraggableSheetPage> {
             children: [
               SizedBox(height: 12),
               QrImageView(
-                data: 'QR 코드 데이터', // 여기에 QR 코드를 생성할 데이터 입력
+                data: '데이터',
                 version: QrVersions.auto,
                 size: 180,
               ),
@@ -502,7 +547,7 @@ class _DraggableSheetPageState extends State<DraggableSheetPage> {
                   children: [
                     // 출발지 및 목적지
                     Container(
-                      height: 90,
+                      height: 110,
                       decoration: BoxDecoration(
                         border: Border(
                           top: BorderSide(
@@ -514,23 +559,31 @@ class _DraggableSheetPageState extends State<DraggableSheetPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            margin: EdgeInsets.fromLTRB(20, 5, 20, 0),
+                          // 출발지 컨테이너
+                          Expanded(
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                // 출발지 텍스트
                                 Text(
-                                  '출발지',
+                                  '[ 출발지 ]',
                                   style: TextStyle(
                                     fontSize: 22,
                                   ),
                                 ),
-                                SizedBox(height: 5), // Add space between the two texts
-                                Text(
-                                  '경로1',
-                                  style: TextStyle(
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold,
+                                SizedBox(height: 5),
+                                // 출발지 내용
+                                Container(
+                                  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                  child: Text(
+                                    type == '등교' ? '한남대학교' : endPoint,
+                                    style: TextStyle(
+                                      fontSize: 21,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    softWrap: true,
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -542,23 +595,31 @@ class _DraggableSheetPageState extends State<DraggableSheetPage> {
                             size: 50,
                           ),
                           SizedBox(width: 20),
-                          Container(
-                            margin: EdgeInsets.fromLTRB(20, 5, 20, 0),
+                          // 목적지 컨테이너
+                          Expanded(
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                // 목적지 텍스트
                                 Text(
-                                  '목적지',
+                                  '[ 목적지 ]',
                                   style: TextStyle(
                                     fontSize: 22,
                                   ),
                                 ),
-                                SizedBox(height: 5), // Add space between the two texts
-                                Text(
-                                  '경로2',
-                                  style: TextStyle(
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold,
+                                SizedBox(height: 5),
+                                // 목적지 내용
+                                Container(
+                                  margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                  child: Text(
+                                    type == '등교' ? endPoint : '한남대학교',
+                                    style: TextStyle(
+                                      fontSize: 21,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    softWrap: true,
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -591,14 +652,14 @@ class _DraggableSheetPageState extends State<DraggableSheetPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '출발시간',
+                                    '[ 출발일 ]',
                                     style: TextStyle(
                                       fontSize: 22,
                                     ),
                                   ),
                                   SizedBox(height: 5), // Add space between the two texts
                                   Text(
-                                    '08:00',
+                                    date.isNotEmpty ? date : ' ',
                                     style: TextStyle(
                                       fontSize: 30,
                                       fontWeight: FontWeight.bold,
@@ -623,14 +684,14 @@ class _DraggableSheetPageState extends State<DraggableSheetPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '좌석번호',
+                                    '[ 좌석번호 ]',
                                     style: TextStyle(
                                       fontSize: 22,
                                     ),
                                   ),
                                   SizedBox(height: 5), // Add space between the two texts
                                   Text(
-                                    '15',
+                                    SeatNumber != 0 ? SeatNumber.toString() : ' ',
                                     style: TextStyle(
                                       fontSize: 30,
                                       fontWeight: FontWeight.bold,
@@ -645,6 +706,7 @@ class _DraggableSheetPageState extends State<DraggableSheetPage> {
                     ),
                     // 예매취소 버튼
                     Container(
+                      height: 45,
                       margin: EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         border: Border.all(
@@ -668,8 +730,7 @@ class _DraggableSheetPageState extends State<DraggableSheetPage> {
                       ),
                     ),
                   ],
-                )
-
+                ),
               ),
             ],
           ),
@@ -692,40 +753,70 @@ class RequestInformation {
 
     // GET 요청 보내기
     final response = await http.get(uriWithParams);
-    print('Sending GET request to $uriWithParams');
+    //print('Sending GET request to $uriWithParams');
 
     if (response.statusCode == 200) {
       final dynamic jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
 
+      print(jsonResponse);
+
       // 초기화
-      //String busId = '';
-      //String type = '';
-      //int seatNumber = 0;
-      //String endPoint = '';
+      String type = '';
+      String route = ''; // 초기화한 route 변수 추가
+      String busId = '';
+      int seatNumber = -1;
+      String endPoint = '';
+      bool isChecked = false;
+      String date = '';
+      String name = '';
 
       // 데이터 추출 및 처리
-      String? busId = jsonResponse['id']?['busId']?.toString();
-      String? type = jsonResponse['bus']?['type'];
-      int? seatNumber = jsonResponse['id']?['seatNumber'] != null ? jsonResponse['id']['seatNumber'] - 1 : null;
-      String? endPoint = jsonResponse['bus']?['endPoint'];
+      if (jsonResponse != null) {
+        var seat = jsonResponse['seat'];
+        if (seat != null) {
+          var seatId = seat['id'];
+          var bus = seat['bus'];
+          if (seatId != null) {
+            busId = seatId['busId'].toString();
+            seatNumber = seatId['seatNumber'];
+            type = seatId['type'];
+          }
+          if (bus != null) {
+            route = bus['endPoint']; // route 값을 버스의 endPoint로 설정
+          }
+        }
+        endPoint = jsonResponse['endPoint'] ?? ''; // 최상위 endPoint 값 설정
+        date = jsonResponse['date'] ?? '';
+        isChecked = jsonResponse['checked'] ?? false;
+        var user = jsonResponse['user'];
+        if (user != null) {
+          name = user['name'] ?? '';
+        }
+      }
 
       // null 값 처리
-      if (busId == null || type == null || seatNumber == null || endPoint == null) {
+      if (busId.isEmpty || type.isEmpty || seatNumber == -1 || endPoint.isEmpty || date.isEmpty) {
         print('Null이므로 빈 맵을 반환');
         return {}; // 빈 맵 반환
       }
 
       // 결과 출력
-      print('Bus ID: $busId, Type: $type, Seat Number: $seatNumber, End Point: $endPoint');
+      print('Bus ID: $busId, Type: $type, Seat Number: $seatNumber, End Point: $endPoint, Route: $route, Name: $name, Date: $date, Is Checked: $isChecked');
 
       // 결과 반환
       return {
-        'busId': busId,
         'type': type,
-        'seatNumbers': seatNumber,
-        'endPoint': endPoint,
+        'busId': busId,
+        'seatNumber': seatNumber,
+        'end_point': endPoint,
+        'route': route,
+        'name': name,
+        'is_checked': isChecked,
+        'date': date,
       };
+
     }
+
     else {
       print('실패 ${response.statusCode}');
       throw Exception('Failed to load reservations');
